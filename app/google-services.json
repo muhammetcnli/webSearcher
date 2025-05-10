@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "420157587284",
+    "project_id": "websearcher-534f7",
+    "storage_bucket": "websearcher-534f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420157587284:android:768f5c8738dba91dab12c1",
+        "android_client_info": {
+          "package_name": "com.example.websearcher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjcYszceUOEItxm-FPrcnxaaeQC4qkPfg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
