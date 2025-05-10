@@ -7,6 +7,10 @@ public class Article {
     public int readingTime; // reading time in minutes
     private boolean isRead; // true if the article has been read
 
+    // 🔥 Firebase için boş constructor gerekiyor
+    public Article() {
+    }
+
     public Article(String url, String title, String imageUrl, int readingTime, boolean isRead) {
         this.url = url;
         this.title = title;
@@ -54,8 +58,4 @@ public class Article {
     public void setReadingTime(int readingTime) {
         this.readingTime = readingTime;
     }
-
-
-
-
 }

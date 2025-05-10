@@ -1,11 +1,14 @@
 package com.example.websearcher.model;
 
+import java.util.List;
+
 public class User {
     private int id;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
+
 
     public User(String firstName, String lastName, String email, String password) {
         this.id = id;

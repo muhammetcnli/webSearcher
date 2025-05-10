@@ -1,4 +1,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-alias(libs.plugins.android.application) apply false
+buildscript {
+    repositories {
+        google()  // Google repository eklenmeli, eğer eksikse
+        mavenCentral()  // Maven Central repository de eklenebilir
+    }
+
+    dependencies {
+        // This line should be here if you need the Google Services plugin classpath
+        classpath 'com.google.gms:google-services:4.4.1'
+        // Firebase için gerekli diğer classpath'ler burada yer alabilir
+    }
 }
+
+plugins {
+    alias(libs.plugins.android.application) apply false
+    id 'com.google.gms.google-services' version '4.4.2' apply false
+    // Eğer başka bir plugin eklemek isterseniz, burada ekleyebilirsiniz.
+}
+
+

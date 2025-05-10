@@ -31,10 +31,13 @@
             </intent-filter>
         </activity>
 
+
         <!-- Ana ekran -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true" />
+
+
 
     </application>
 

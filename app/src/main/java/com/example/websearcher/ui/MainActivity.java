@@ -21,6 +21,7 @@ import com.example.websearcher.model.Article;
 import com.example.websearcher.repository.ArticleRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity
     private List<Article> filteredArticleList;
     private FloatingActionButton fabAddLink;
     private TabLayout tabLayout;
+    private FirebaseAuth mAuth;
 
     // Filtre seçenekleri
     private static final int FILTER_ALL = 0;
@@ -44,11 +46,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_WebSearcher);
         setContentView(R.layout.activity_main);
+
+        // FirebaseAuth başlat
+        mAuth = FirebaseAuth.getInstance();
 
         // View'leri bağla
         recyclerViewArticles = findViewById(R.id.recyclerViewArticles);
@@ -58,7 +61,6 @@ public class MainActivity extends AppCompatActivity
 
         setupTabLayout();
 
-        // Liste ve adapter
         articleList = new ArrayList<>();
         filteredArticleList = new ArrayList<>();
         articleAdapter = new ArticleAdapter(filteredArticleList, article -> {
@@ -72,7 +74,6 @@ public class MainActivity extends AppCompatActivity
         recyclerViewArticles.setAdapter(articleAdapter);
 
         setupSwipeActions();
-
         loadData();
 
         fabAddLink.setOnClickListener(v -> {
@@ -93,14 +94,13 @@ public class MainActivity extends AppCompatActivity
                 currentFilter = tab.getPosition();
                 applyFilter();
             }
+
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
     private void setupSwipeActions() {
-
-
         ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(
                 0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
@@ -109,16 +109,11 @@ public class MainActivity extends AppCompatActivity
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
-                // Drag&drop desteği yok, bu yüzden false döndürüyoruz
                 return false;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-
-
-                // Buraya sağa/sola kaydırma sonrası işlemleri (okundu/sil) koy
                 int pos = viewHolder.getAdapterPosition();
                 Article article = filteredArticleList.get(pos);
                 if (direction == ItemTouchHelper.RIGHT) {
@@ -153,7 +148,6 @@ public class MainActivity extends AppCompatActivity
                 float iconBottom = iconTop + ICON_SIZE;
 
                 if (dX > 0) {
-                    // Sağa kaydırma: okundu
                     icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_eye);
                     backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_read_background);
                     float iconLeft = itemView.getLeft() + iconMargin;
@@ -161,12 +155,10 @@ public class MainActivity extends AppCompatActivity
                     c.drawRect(itemView.getLeft(), itemView.getTop(),
                             itemView.getLeft() + dX, itemView.getBottom(),
                             new Paint() {{ setColor(backgroundColor); }});
-                    icon.setBounds((int)iconLeft, (int)iconTop,
-                            (int)iconRight, (int)iconBottom);
+                    icon.setBounds((int) iconLeft, (int) iconTop,
+                            (int) iconRight, (int) iconBottom);
                     icon.draw(c);
-
                 } else if (dX < 0) {
-                    // Sola kaydırma: sil
                     icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_delete);
                     backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_delete_background);
                     float iconRight = itemView.getRight() - iconMargin;
@@ -174,8 +166,8 @@ public class MainActivity extends AppCompatActivity
                     c.drawRect(itemView.getRight() + dX, itemView.getTop(),
                             itemView.getRight(), itemView.getBottom(),
                             new Paint() {{ setColor(backgroundColor); }});
-                    icon.setBounds((int)iconLeft, (int)iconTop,
-                            (int)iconRight, (int)iconBottom);
+                    icon.setBounds((int) iconLeft, (int) iconTop,
+                            (int) iconRight, (int) iconBottom);
                     icon.draw(c);
                 }
             }
