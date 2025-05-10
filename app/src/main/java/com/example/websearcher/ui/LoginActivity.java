@@ -35,10 +35,10 @@ public class LoginActivity extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this,getString(R.string.Fields), Toast.LENGTH_SHORT).show();
             } else {
                 // Başarılı giriş
-                Toast.makeText(LoginActivity.this, "Giriş başarılı!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.Login_successful), Toast.LENGTH_SHORT).show();
 
                 // Ana ekrana geç
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

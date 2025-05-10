@@ -14,7 +14,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Giriş Yap"
+            app:title="@string/Sign_in"
             app:titleTextColor="@android:color/white"
             android:background="?attr/colorPrimary" />
 
@@ -45,7 +45,7 @@
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
+                android:hint="@string/Email"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +68,7 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Şifre"
+                android:hint="@string/Password"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +78,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Giriş Yap"
+            android:text="@string/Sign_in"
             android:textColor="@android:color/white"
             android:backgroundTint="?attr/colorPrimary"
             app:cornerRadius="16dp"
@@ -93,7 +93,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Kayıt Ol"
+            android:text="@string/Register"
             android:textColor="@android:color/white"
             android:backgroundTint="?attr/colorPrimary"
             app:cornerRadius="16dp"

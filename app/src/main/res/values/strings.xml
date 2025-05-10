@@ -27,12 +27,20 @@
     <string name="filter_all">All</string>
     <string name="filter_unread">Unread</string>
     <string name="filter_read">Read</string>"
-
+    <string name="Email">Email</string>
     <string name="empty_text">No Data</string>
-
+    <string name="Password">Password</string>
     <string name="toast_marked_read">Read</string>
     <string name="toast_deleted">Deleted</string>
-
+    <string name="Sign_in">Sign in</string>
+    <string name="Register">Register</string>
+    <string name="Name">Name</string>
+    <string name="Surname">Surname</string>
+    <string name="Confirm_Password">Confirm Password</string>
+    <string name="Fields">Please fill out all the fields</string>
+    <string name="Login_successful">Login successful</string>
+    <string name="Password_match">Passwords do not match</string>
+    <string name="Register_successful">Registration successful</string>"
     <!-- deneme -->
     <string name="search">Ara</string>
     <string name="search_hint">Aramak için yazın...</string>

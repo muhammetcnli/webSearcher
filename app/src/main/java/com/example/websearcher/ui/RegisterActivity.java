@@ -39,18 +39,18 @@ public class RegisterActivity extends AppCompatActivity {
             // Verileri kontrol et
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()
                     || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,getString(R.string.Fields), Toast.LENGTH_SHORT).show();
             } else if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "Şifreler uyuşmuyor", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.Password_match), Toast.LENGTH_SHORT).show();
             } else {
                 // Kullanıcı nesnesini oluştur
                 User user = new User(firstName, lastName, email, password);
 
                 // Kayıt başarılı mesajı
-                Toast.makeText(this, "Kayıt başarılı!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.Register_successful), Toast.LENGTH_SHORT).show();
 
                 // Kullanıcı bilgisini yazdır (Veritabanına ekleme işlemi yapılabilir)
-                System.out.println("Yeni kullanıcı: " + user.getFullName() + " | Email: " + user.getEmail());
+                System.out.println("New user: " + user.getFullName() + " | Email: " + user.getEmail());
 
                 finish(); // Kayıt sonrası Login ekranına dön
             }
