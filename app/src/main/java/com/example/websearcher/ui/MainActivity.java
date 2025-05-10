@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-
+import android.widget.Button;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -50,6 +52,33 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.Theme_WebSearcher);
         setContentView(R.layout.activity_main);
 
+        // Butonu Tanımla
+        Button themeToggleButton = findViewById(R.id.themeToggleButton);
+
+        // Geçerli Tema Durumunu Kontrol Et
+        SharedPreferences sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = sharedPreferences.getBoolean("isDarkMode", false);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+        // Butona Tıklama İşlemi
+        themeToggleButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            if (isDarkMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                editor.putBoolean("isDarkMode", false);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                editor.putBoolean("isDarkMode", true);
+            }
+            editor.apply();
+
+            // Aktiviteyi Yeniden Başlat
+            recreate();
+        });
         // View'leri bağla
         recyclerViewArticles = findViewById(R.id.recyclerViewArticles);
         emptyView = findViewById(R.id.emptyView);
