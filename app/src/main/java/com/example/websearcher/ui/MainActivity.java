@@ -6,12 +6,17 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +25,7 @@ import com.example.websearcher.R;
 import com.example.websearcher.model.Article;
 import com.example.websearcher.repository.ArticleRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements AddLinkBottomSheetFragment.OnUrlEnteredListener {
 
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     private RecyclerView recyclerViewArticles;
     private View emptyView;
     private ArticleAdapter articleAdapter;
@@ -36,7 +44,6 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton fabAddLink;
     private TabLayout tabLayout;
 
-    // Filtre seçenekleri
     private static final int FILTER_ALL = 0;
     private static final int FILTER_UNREAD = 1;
     private static final int FILTER_READ = 2;
@@ -44,11 +51,35 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_WebSearcher);
         setContentView(R.layout.activity_main);
+
+        // Toolbar'ı ActionBar olarak ayarla
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // DrawerLayout ve NavigationView referansları
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
+
+        // ActionBarDrawerToggle ile hamburger ikonunu ekle ve senkronize et
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                toolbar,
+                R.string.drawer_open,
+                R.string.drawer_close
+        );
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // NavigationView öğe seçimini dinle
+        navigationView.setNavigationItemSelectedListener(item -> {
+            handleNavigationItem(item);
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
 
         // View'leri bağla
         recyclerViewArticles = findViewById(R.id.recyclerViewArticles);
@@ -72,7 +103,6 @@ public class MainActivity extends AppCompatActivity
         recyclerViewArticles.setAdapter(articleAdapter);
 
         setupSwipeActions();
-
         loadData();
 
         fabAddLink.setOnClickListener(v -> {
@@ -80,6 +110,45 @@ public class MainActivity extends AppCompatActivity
             bottomSheet.setOnUrlEnteredListener(this);
             bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         });
+    }
+
+    private void handleNavigationItem(@NonNull MenuItem item) {
+        /* int id = item.getItemId();
+        switch (id) {
+            case R.id.nav_home:
+                // Ana ekrana dön
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+
+            case R.id.nav_settings:
+                // Fragment yerine Ayarlar aktivitesine geç
+                startActivity(new Intent(this, SettingsActivity.class)); // eğer bir SettingsActivity varsa
+                break;
+                break;
+
+            case R.id.nav_profile:
+                // profil ekranı aç
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
+
+            default:
+                // Diğer durumlar
+                Toast.makeText(this, "Bilinmeyen seçim", Toast.LENGTH_SHORT).show();
+        }
+        // Menü kapansın
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+         */
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void setupTabLayout() {
@@ -99,8 +168,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupSwipeActions() {
-
-
         ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(
                 0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
@@ -109,16 +176,11 @@ public class MainActivity extends AppCompatActivity
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
-                // Drag&drop desteği yok, bu yüzden false döndürüyoruz
                 return false;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-
-
-                // Buraya sağa/sola kaydırma sonrası işlemleri (okundu/sil) koy
                 int pos = viewHolder.getAdapterPosition();
                 Article article = filteredArticleList.get(pos);
                 if (direction == ItemTouchHelper.RIGHT) {
@@ -153,7 +215,6 @@ public class MainActivity extends AppCompatActivity
                 float iconBottom = iconTop + ICON_SIZE;
 
                 if (dX > 0) {
-                    // Sağa kaydırma: okundu
                     icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_eye);
                     backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_read_background);
                     float iconLeft = itemView.getLeft() + iconMargin;
@@ -164,9 +225,7 @@ public class MainActivity extends AppCompatActivity
                     icon.setBounds((int)iconLeft, (int)iconTop,
                             (int)iconRight, (int)iconBottom);
                     icon.draw(c);
-
                 } else if (dX < 0) {
-                    // Sola kaydırma: sil
                     icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_delete);
                     backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_delete_background);
                     float iconRight = itemView.getRight() - iconMargin;
@@ -180,7 +239,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerViewArticles);
     }
 

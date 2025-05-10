@@ -40,5 +40,12 @@
     <string name="filter_option_1">Seçenek 1</string>
     <string name="filter_option_2">Seçenek 2</string>
 
+    <string name="profile_pic">Profile pic</string>
+
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+
+
+
 
 </resources>
