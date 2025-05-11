@@ -1,6 +1,7 @@
 package com.example.websearcher.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -55,15 +56,12 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.Theme_WebSearcher);
         setContentView(R.layout.activity_main);
 
-        // Toolbar'ı ActionBar olarak ayarla
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // DrawerLayout ve NavigationView referansları
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
 
-        // ActionBarDrawerToggle ile hamburger ikonunu ekle ve senkronize et
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
                 drawerLayout,
@@ -74,14 +72,12 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // NavigationView öğe seçimini dinle
         navigationView.setNavigationItemSelectedListener(item -> {
             handleNavigationItem(item);
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
 
-        // View'leri bağla
         recyclerViewArticles = findViewById(R.id.recyclerViewArticles);
         emptyView = findViewById(R.id.emptyView);
         fabAddLink = findViewById(R.id.fabAddLink);
@@ -89,7 +85,6 @@ public class MainActivity extends AppCompatActivity
 
         setupTabLayout();
 
-        // Liste ve adapter
         articleList = new ArrayList<>();
         filteredArticleList = new ArrayList<>();
         articleAdapter = new ArticleAdapter(filteredArticleList, article -> {
@@ -113,34 +108,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void handleNavigationItem(@NonNull MenuItem item) {
-        /* int id = item.getItemId();
-        switch (id) {
-            case R.id.nav_home:
-                // Ana ekrana dön
-                startActivity(new Intent(this, MainActivity.class));
-                break;
+        int id = item.getItemId();
 
-            case R.id.nav_settings:
-                // Fragment yerine Ayarlar aktivitesine geç
-                startActivity(new Intent(this, SettingsActivity.class)); // eğer bir SettingsActivity varsa
-                break;
-                break;
+        if (id == R.id.nav_home) {
+            // Ana sayfadaysak bir şey yapma
+        } else if (id == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.nav_logout) {
+            // Oturumu temizle
+            SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear(); // tüm verileri temizler
+            editor.apply();
 
-            case R.id.nav_profile:
-                // profil ekranı aç
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
-
-            default:
-                // Diğer durumlar
-                Toast.makeText(this, "Bilinmeyen seçim", Toast.LENGTH_SHORT).show();
+            // Giriş ekranına yönlendir
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "Bilinmeyen seçim", Toast.LENGTH_SHORT).show();
         }
-        // Menü kapansın
-        drawerLayout.closeDrawer(GravityCompat.START);
-
-         */
-
     }
+
 
     @Override
     public void onBackPressed() {
