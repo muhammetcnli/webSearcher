@@ -14,7 +14,9 @@ public class Article {
     }
 
     // Article constructor'ı
-    public Article(String url, String title, String iconUrl, int readingTime, boolean isRead) {
+    public Article(String id, String userId, String url, String title, String iconUrl, int readingTime, boolean isRead) {
+        this.id = id;
+        this.userId = userId;
         this.url = url;
         this.title = title;
         this.iconUrl = iconUrl;

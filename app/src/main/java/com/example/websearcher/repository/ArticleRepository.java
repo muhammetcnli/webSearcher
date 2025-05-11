@@ -1,6 +1,7 @@
 package com.example.websearcher.repository;
 
 import com.example.websearcher.model.Article;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -54,8 +55,17 @@ public class ArticleRepository {
         int wordCount = text.split("\\s+").length;
         int readingTime = (int) Math.ceil(wordCount / AVERAGE_WPM); // Divide wordCount to get reading time in minutes
 
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         // Yeni Article nesnesi oluştur
-        Article article = new Article(url, title, imageUrl, readingTime, false);
+        Article article = new Article(
+                null,
+                currentUid,
+                url,
+                title,
+                imageUrl,
+                readingTime,
+                false);
 
         // Article'ı Firebase'e kaydet
         saveArticleToFirebase(article);
