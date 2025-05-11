@@ -10,13 +10,11 @@ public class Article {
     private boolean isRead; // makale okunduysa true
 
     // Firebase için varsayılan constructor
-    public Article(String url, String title, String imageUrl, int readingTime, boolean b) {
+    public Article() {
     }
 
     // Article constructor'ı
-    public Article(String id, String userId, String url, String title, String iconUrl, int readingTime, boolean isRead) {
-        this.id = id;
-        this.userId = userId;
+    public Article(String url, String title, String iconUrl, int readingTime, boolean isRead) {
         this.url = url;
         this.title = title;
         this.iconUrl = iconUrl;
