@@ -40,4 +40,6 @@
 
 
     <string name="read_check_desc">Read</string>
+
+    <string name="logout">Logout</string>
 </resources>
