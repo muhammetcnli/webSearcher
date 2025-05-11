@@ -88,10 +88,16 @@ public class MainActivity extends AppCompatActivity
         articleList = new ArrayList<>();
         filteredArticleList = new ArrayList<>();
         articleAdapter = new ArticleAdapter(filteredArticleList, article -> {
+            String urlString = article.getUrl();
+            if (urlString != null && !urlString.trim().isEmpty()) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(article.getUrl()));
             startActivity(intent);
             article.setRead(true);
             applyFilter();
+            }
+            else {
+                Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
+            }
         });
 
         recyclerViewArticles.setLayoutManager(new LinearLayoutManager(this));
@@ -110,9 +116,7 @@ public class MainActivity extends AppCompatActivity
     private void handleNavigationItem(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_home) {
-            // Ana sayfadaysak bir şey yapma
-        } else if (id == R.id.nav_profile) {
+        if (id == R.id.nav_profile) {
             startActivity(new Intent(this, ProfileActivity.class));
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
@@ -129,7 +133,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         } else {
-            Toast.makeText(this, "Bilinmeyen seçim", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -197,6 +201,7 @@ public class MainActivity extends AppCompatActivity
                                     float dX, float dY,
                                     int actionState, boolean isCurrentlyActive) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                // set icon size
                 float ICON_SIZE = 48 * getResources().getDisplayMetrics().density;
 
                 View itemView = viewHolder.itemView;
