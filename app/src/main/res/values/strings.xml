@@ -8,7 +8,7 @@
 
     <!-- BottomSheet and Dialog Titles -->
     <string name="add_link">Add Link</string>
-    <string name="dialog_add_title">Add new bağlantı</string>
+    <string name="dialog_add_title">Add Link</string>
     <string name="dialog_add_button">Add</string>
     <string name="dialog_cancel_button">Cancel</string>
     <string name="add_link_content_desc">Add new link</string>
@@ -40,4 +40,6 @@
 
 
     <string name="read_check_desc">Read</string>
+
+    <string name="logout">Logout</string>
 </resources>
