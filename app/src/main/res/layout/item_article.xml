@@ -50,6 +50,20 @@
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
         android:text="@string/placeholder_reading_time"/>
 
+    <!-- Tick Icon -->
+    <ImageView
+        android:id="@+id/imageViewTick"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@string/read_check_desc"
+        android:src="@drawable/ic_check"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+    <!-- başta gizli -->
+
+    <!-- Alt Çizgi -->
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"

@@ -32,11 +32,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
         public TextView readingTimeTextView;
         public ImageView articleImageView;
 
+        // add tick
+        public ImageView tickImageView;
+
         public ViewHolder(View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.textViewTitle);
             readingTimeTextView = itemView.findViewById(R.id.textViewReadingTime);
             articleImageView = itemView.findViewById(R.id.imageViewIcon);
+            tickImageView = itemView.findViewById(R.id.imageViewTick);
         }
     }
 
@@ -52,17 +56,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Article article = articles.get(position);
 
-        // Title and reading time
+        // Mevcut başlık, süre, resim yükleme vb.
         holder.titleTextView.setText(article.getTitle());
         String readingTimeText = holder.itemView.getContext()
                 .getString(R.string.reading_time_format, article.getReadingTime());
         holder.readingTimeTextView.setText(readingTimeText);
 
-        // Load icon using Glide
-        String iconUrl = article.getIconUrl();
-        if (iconUrl != null && !iconUrl.isEmpty()) {
+        if (article.getIconUrl() != null && !article.getIconUrl().isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(iconUrl)
+                    .load(article.getIconUrl())
                     .placeholder(R.drawable.placeholder_image)
                     .error(R.drawable.error_image)
                     .into(holder.articleImageView);
@@ -70,13 +72,21 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
             holder.articleImageView.setImageResource(R.drawable.placeholder_image);
         }
 
-        // Click listener for the item
+        // isRead’e göre tick’i göster/gizle
+        if (article.isRead()) {
+            holder.tickImageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.tickImageView.setVisibility(View.GONE);
+        }
+
+        // Tıklanma olayı
         holder.itemView.setOnClickListener(v -> {
             if (onArticleClickListener != null) {
                 onArticleClickListener.onArticleClick(article);
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

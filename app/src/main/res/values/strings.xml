@@ -46,6 +46,5 @@
     <string name="drawer_close">Close</string>
 
 
-
-
+    <string name="read_check_desc">You read this article</string>
 </resources>
