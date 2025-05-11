@@ -7,11 +7,11 @@ public class User {
     private String email;
     private String password;
 
+    // Firebase için parametresiz constructor gerekli
     public User() {
     }
 
-    public User(String uid,String firstName, String lastName, String email, String password) {
-        this.uid = uid;
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

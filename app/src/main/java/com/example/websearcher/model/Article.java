@@ -5,23 +5,26 @@ public class Article {
     private String url;
     private String userId;
     private String title;
-    public String iconUrl;
-    public int readingTime; // reading time in minutes
-    private boolean isRead; // true if the article has been read
+    private String iconUrl;
+    private int readingTime; // okuma süresi dakikalar cinsinden
+    private boolean isRead; // makale okunduysa true
 
-    public Article() {
+    // Firebase için varsayılan constructor
+    public Article(String url, String title, String imageUrl, int readingTime, boolean b) {
     }
 
-    public Article(String id, String userId, String url, String title, String imageUrl, int readingTime, boolean isRead) {
+    // Article constructor'ı
+    public Article(String id, String userId, String url, String title, String iconUrl, int readingTime, boolean isRead) {
         this.id = id;
         this.userId = userId;
         this.url = url;
         this.title = title;
-        this.iconUrl = imageUrl;
+        this.iconUrl = iconUrl;
         this.readingTime = readingTime;
         this.isRead = isRead;
     }
 
+    // Getter ve Setter metodları
     public String getId() {
         return id;
     }
@@ -44,14 +47,6 @@ public class Article {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
     }
 
     public String getTitle() {
@@ -78,7 +73,11 @@ public class Article {
         this.readingTime = readingTime;
     }
 
+    public boolean isRead() {
+        return isRead;
+    }
 
-
-
+    public void setRead(boolean read) {
+        isRead = read;
+    }
 }
