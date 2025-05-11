@@ -33,18 +33,11 @@
     <string name="toast_marked_read">Read</string>
     <string name="toast_deleted">Deleted</string>
 
-    <!-- deneme -->
-    <string name="search">Ara</string>
-    <string name="search_hint">Aramak için yazın...</string>
-    <string name="filter">Filtrele</string>
-    <string name="filter_option_1">Seçenek 1</string>
-    <string name="filter_option_2">Seçenek 2</string>
-
     <string name="profile_pic">Profile pic</string>
 
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 
 
-    <string name="read_check_desc">You read this article</string>
+    <string name="read_check_desc">Read</string>
 </resources>

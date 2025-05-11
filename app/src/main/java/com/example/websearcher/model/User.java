@@ -1,14 +1,17 @@
 package com.example.websearcher.model;
 
 public class User {
-    private int id;
+    private String uid;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
 
-    public User(String firstName, String lastName, String email, String password) {
-        this.id = id;
+    public User() {
+    }
+
+    public User(String uid,String firstName, String lastName, String email, String password) {
+        this.uid = uid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -16,12 +19,12 @@ public class User {
     }
 
     // Getter ve Setter metodları
-    public int getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getFirstName() {
