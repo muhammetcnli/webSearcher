@@ -68,7 +68,7 @@ public class ArticleRepository {
                 false);
 
         // Article'ı Firebase'e kaydet
-        saveArticleToFirebase(article);
+        // saveArticleToFirebase(article);
 
         return article;
     }
