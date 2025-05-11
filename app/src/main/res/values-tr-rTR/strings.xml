@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Genel Uygulama Bilgisi -->
+    <string name="app_name">webSearcher</string>
+
+    <!-- URL İlgili Mesajlar -->
+    <string name="hint_enter_url">URL girin</string>
+    <string name="toast_enter_url">Lütfen bir URL girin</string>
+
+    <!-- Alt Sayfa ve Diyalog Başlıkları -->
+    <string name="add_link">Bağlantı Ekle</string>
+    <string name="dialog_add_title">Bağlantı Ekle</string>
+    <string name="dialog_add_button">Ekle</string>
+    <string name="dialog_cancel_button">İptal</string>
+    <string name="add_link_content_desc">Yeni bağlantı ekle</string>
+
+    <!-- Okuma Süresi Formatı -->
+    <string name="reading_time_format">%1$d dk</string>
+
+    <!-- Hata Mesajları -->
+    <string name="toast_error">Hata: %1$s</string>
+
+    <!-- Yer Tutucular -->
+    <string name="placeholder_reading_time">5 dk</string>
+    <string name="placeholder_title">Bu uzun makale başlığı birden fazla satıra yayılabilir</string>
+
+    <string name="toast_article_saved">Makale başarıyla kaydedildi!</string>
+
+    <!-- Diğer string kaynakları -->
+    <string name="filter_all">Tümü</string>
+    <string name="filter_unread">Okunmamış</string>
+    <string name="filter_read">Okundu</string>
+
+    <string name="empty_text">Veri Yok</string>
+
+    <string name="toast_marked_read">Okundu</string>
+    <string name="toast_deleted">Silindi</string>
+    <string name="toast_enter_email_password">Lütfen tüm alanları doldurun</string>
+    <string name="toast_login_success">Giriş Başarılı: </string>
+
+    <string name="toast_coming_soon">Yakında</string>
+
+    <string name="profile">Profil</string>
+    <string name="settings">Ayarlar</string>
+
+    <string name="profile_pic">Profil fotoğrafı</string>
+
+    <string name="drawer_open">Aç</string>
+    <string name="drawer_close">Kapat</string>
+
+    <string name="read_check_desc">Okundu</string>
+
+    <string name="logout">Çıkış Yap</string>
+    <string name="login">Giriş Yap</string>
+
+    <string name="email">E-posta</string>
+    <string name="first_name">Ad</string>
+    <string name="last_name">Soyad</string>
+    <string name="password">Şifre</string>
+    <string name="re_password">Şifreyi Tekrar Girin</string>
+    <string name="signin">Kayıt Ol</string>
+
+    <string name="example_name">Ad Soyad</string>
+    <string name="example_mail">muhammet@example.com</string>
+
+    <string name="theme">Tema</string>
+    <string name="language">Dil</string>
+    <string name="error_user_data">"Kullanıcı bilgisi alınamadı: "</string>
+    <string name="error_article_data">"Site bilgisi alınamadı: "</string>
+    <string name="error_passwords_not_match">Şifreler uyuşmuyor</string>
+    <string name="toast_register_success">"Kayıt başarılı: "</string>
+    <string name="database_error">Kullanıcı veritabanına eklenemedi</string>
+    <string name="error_email_not_found">Hata: Email bulunamadı</string>
+</resources>

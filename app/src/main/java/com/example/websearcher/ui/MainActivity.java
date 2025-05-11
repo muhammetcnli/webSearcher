@@ -2,6 +2,7 @@ package com.example.websearcher.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -9,11 +10,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -29,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements AddLinkBottomSheetFragment.OnUrlEnteredListener {
@@ -57,24 +62,63 @@ public class MainActivity extends AppCompatActivity
     private int currentFilter = FILTER_UNREAD;
 
     private DatabaseReference articlesRef;
+    private DatabaseReference usersRef;
     private String currentUid;
     private ValueEventListener articlesListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_WebSearcher);
+
+        // Apply saved theme before setting content view
+        applyUserPreferences();
+
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_main);
 
-        // Check if the user is already logged in
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            // If the user is not logged in, redirect to LoginActivity
+        // Check if user is logged in
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
-        // Proceed with regular MainActivity setup
+        // Get current user ID
+        currentUid = user.getUid();
+
+        // Setup Firebase references
+        articlesRef = FirebaseDatabase.getInstance().getReference("articles");
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
+
+        setupUI();
+        setupRecyclerView();
+        loadUserData();
+        loadArticles();
+        setupListeners();
+    }
+
+    private void applyUserPreferences() {
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
+        // Apply theme preference
+        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
+        // Apply language preference
+        String language = prefs.getString("app_lang", "en");
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+    }
+
+    private void setupUI() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -102,6 +146,51 @@ public class MainActivity extends AppCompatActivity
 
         setupTabLayout();
 
+        fabAddLink.setOnClickListener(v -> {
+            AddLinkBottomSheetFragment bottomSheet = new AddLinkBottomSheetFragment();
+            bottomSheet.setOnUrlEnteredListener(this);
+            bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
+        });
+    }
+
+    private void loadUserData() {
+        // Get header view from navigation view
+        View headerView = navigationView.getHeaderView(0);
+        TextView tvFirstName = headerView.findViewById(R.id.tv_user_firstname);
+        TextView tvLastName = headerView.findViewById(R.id.tv_user_lastname);
+        TextView tvEmail = headerView.findViewById(R.id.tv_user_email);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // Set email from FirebaseAuth
+            String email = user.getEmail();
+            tvEmail.setText(email);
+
+            // Fetch user name from Firebase Database
+            usersRef.child(currentUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        String firstName = snapshot.child("firstName").getValue(String.class);
+                        String lastName = snapshot.child("lastName").getValue(String.class);
+                        if (firstName != null && !firstName.isEmpty()) {
+                            tvFirstName.setText(firstName);
+                            tvLastName.setText(lastName);
+                        } else {
+                            tvFirstName.setText(R.string.example_name);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(MainActivity.this, R.string.error_user_data, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void setupRecyclerView() {
         articleList = new ArrayList<>();
         filteredArticleList = new ArrayList<>();
         articleAdapter = new ArticleAdapter(filteredArticleList, article -> {
@@ -109,6 +198,7 @@ public class MainActivity extends AppCompatActivity
             if (urlString != null && !urlString.trim().isEmpty()) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
                 article.setRead(true);
+                articlesRef.child(article.getId()).child("read").setValue(true);
                 applyFilter();
             } else {
                 Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
@@ -119,12 +209,9 @@ public class MainActivity extends AppCompatActivity
         recyclerViewArticles.setAdapter(articleAdapter);
 
         setupSwipeActions();
+    }
 
-        // Firebase setup
-        currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        articlesRef = FirebaseDatabase.getInstance().getReference("articles");
-
-        // Listener setup once
+    private void loadArticles() {
         articlesListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -141,25 +228,22 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(MainActivity.this, "Veri alınırken hata: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.error_article_data + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };
+    }
+
+    private void setupListeners() {
         articlesRef.orderByChild("userId").equalTo(currentUid)
                 .addValueEventListener(articlesListener);
-
-        fabAddLink.setOnClickListener(v -> {
-            AddLinkBottomSheetFragment bottomSheet = new AddLinkBottomSheetFragment();
-            bottomSheet.setOnUrlEnteredListener(this);
-            bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
-        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Remove listener to prevent duplicates
         if (articlesListener != null) {
-            articlesRef.removeEventListener(articlesListener);
+            articlesRef.orderByChild("userId").equalTo(currentUid)
+                    .removeEventListener(articlesListener);
         }
     }
 
@@ -175,7 +259,6 @@ public class MainActivity extends AppCompatActivity
                     article.setId(key);
                     articlesRef.child(key).setValue(article);
                 }
-                // Listener will pick up new data; no need to manually reload
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(
@@ -189,12 +272,9 @@ public class MainActivity extends AppCompatActivity
 
     private void handleNavigationItem(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-        } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        } else if (id == R.id.nav_logout) {
-            FirebaseAuth.getInstance().signOut(); // Sign out user
+
+        if (id == R.id.nav_logout) {
+            FirebaseAuth.getInstance().signOut();
             SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();
@@ -203,9 +283,45 @@ public class MainActivity extends AppCompatActivity
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        } else if (id == R.id.nav_theme) {
+            toggleTheme();
+        } else if (id == R.id.nav_language) {
+            toggleLanguage();
         } else {
             Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void toggleTheme() {
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+        SharedPreferences.Editor editor = prefs.edit();
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            editor.putBoolean("dark_mode", false);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            editor.putBoolean("dark_mode", true);
+        }
+        editor.apply();
+        recreate(); // Restart activity
+    }
+
+    private void toggleLanguage() {
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String currentLang = prefs.getString("app_lang", "en");
+        String newLang = currentLang.equals("en") ? "tr" : "en";
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("app_lang", newLang);
+        editor.apply();
+
+        Locale locale = new Locale(newLang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
+        recreate(); // Restart activity
     }
 
     private void setupTabLayout() {
@@ -228,13 +344,13 @@ public class MainActivity extends AppCompatActivity
                 Article article = filteredArticleList.get(pos);
                 if (direction == ItemTouchHelper.RIGHT) {
                     article.setRead(true);
+                    articlesRef.child(article.getId()).child("read").setValue(true);
                     Toast.makeText(MainActivity.this, R.string.toast_marked_read, Toast.LENGTH_SHORT).show();
                 } else {
                     articlesRef.child(article.getId()).removeValue();
                     Toast.makeText(MainActivity.this, R.string.toast_deleted, Toast.LENGTH_SHORT).show();
                 }
                 applyFilter();
-                articleAdapter.notifyDataSetChanged();
             }
             @Override public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -270,7 +386,9 @@ public class MainActivity extends AppCompatActivity
     private void applyFilter() {
         filteredArticleList.clear();
         for (Article a : articleList) {
-            if (currentFilter == FILTER_ALL || (currentFilter == FILTER_UNREAD && !a.isRead()) || (currentFilter == FILTER_READ && a.isRead())) {
+            if (currentFilter == FILTER_ALL ||
+                    (currentFilter == FILTER_UNREAD && !a.isRead()) ||
+                    (currentFilter == FILTER_READ && a.isRead())) {
                 filteredArticleList.add(a);
             }
         }

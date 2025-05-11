@@ -50,9 +50,9 @@ public class RegisterActivity extends AppCompatActivity {
             // Verileri kontrol et
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()
                     || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_enter_email_password, Toast.LENGTH_SHORT).show();
             } else if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "Şifreler uyuşmuyor", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_passwords_not_match, Toast.LENGTH_SHORT).show();
             } else {
                 // Firebase Authentication ile kullanıcı oluştur
                 mAuth.createUserWithEmailAndPassword(email, password)
@@ -70,10 +70,10 @@ public class RegisterActivity extends AppCompatActivity {
                                             .addOnCompleteListener(dbTask -> {
                                                 if (dbTask.isSuccessful()) {
                                                     // Kayıt başarılı
-                                                    Toast.makeText(RegisterActivity.this, "Kayıt başarılı!", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(RegisterActivity.this, R.string.toast_register_success, Toast.LENGTH_SHORT).show();
                                                     finish(); // Kayıt sonrası Login ekranına dön
                                                 } else {
-                                                    Toast.makeText(RegisterActivity.this, "Veritabanına kaydedilemedi.", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(RegisterActivity.this, R.string.database_error, Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                 }

@@ -1,5 +1,6 @@
 package com.example.websearcher.repository;
 
+import com.example.websearcher.R;
 import com.example.websearcher.model.Article;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -81,9 +82,9 @@ public class ArticleRepository {
             mDatabase.child(articleId).setValue(article)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            System.out.println("Makale başarıyla kaydedildi: " + article.getTitle());
+                            System.out.println(R.string.toast_article_saved);
                         } else {
-                            System.out.println("Hata: " + task.getException().getMessage());
+                            System.out.println(R.string.toast_error + task.getException().getMessage());
                         }
                     });
         }
