@@ -28,6 +28,13 @@ import com.example.websearcher.repository.ArticleRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +57,10 @@ public class MainActivity extends AppCompatActivity
     private static final int FILTER_READ = 2;
     private int currentFilter = FILTER_UNREAD;
 
+    private DatabaseReference articlesRef;
+    private String currentUid;
+    private ValueEventListener articlesListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
                 drawerLayout,
@@ -71,7 +81,6 @@ public class MainActivity extends AppCompatActivity
         );
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
         navigationView.setNavigationItemSelectedListener(item -> {
             handleNavigationItem(item);
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -90,12 +99,10 @@ public class MainActivity extends AppCompatActivity
         articleAdapter = new ArticleAdapter(filteredArticleList, article -> {
             String urlString = article.getUrl();
             if (urlString != null && !urlString.trim().isEmpty()) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(article.getUrl()));
-            startActivity(intent);
-            article.setRead(true);
-            applyFilter();
-            }
-            else {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+                article.setRead(true);
+                applyFilter();
+            } else {
                 Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
             }
         });
@@ -104,7 +111,32 @@ public class MainActivity extends AppCompatActivity
         recyclerViewArticles.setAdapter(articleAdapter);
 
         setupSwipeActions();
-        loadData();
+
+        // Firebase setup
+        currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        articlesRef = FirebaseDatabase.getInstance().getReference("articles");
+
+        // Listener setup once
+        articlesListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                articleList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Article a = ds.getValue(Article.class);
+                    if (a != null) {
+                        a.setId(ds.getKey());
+                        articleList.add(a);
+                    }
+                }
+                applyFilter();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Veri alınırken hata: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        };
+        articlesRef.orderByChild("userId").equalTo(currentUid)
+                .addValueEventListener(articlesListener);
 
         fabAddLink.setOnClickListener(v -> {
             AddLinkBottomSheetFragment bottomSheet = new AddLinkBottomSheetFragment();
@@ -113,149 +145,28 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private void handleNavigationItem(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-        } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        } else if (id == R.id.nav_logout) {
-            // Oturumu temizle
-            SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.clear(); // tüm verileri temizler
-            editor.apply();
-
-            // Giriş ekranına yönlendir
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+    protected void onDestroy() {
+        super.onDestroy();
+        // Remove listener to prevent duplicates
+        if (articlesListener != null) {
+            articlesRef.removeEventListener(articlesListener);
         }
-    }
-
-    private void setupTabLayout() {
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_all));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_unread));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_read));
-        tabLayout.selectTab(tabLayout.getTabAt(FILTER_UNREAD));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                currentFilter = tab.getPosition();
-                applyFilter();
-            }
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
-        });
-    }
-
-    private void setupSwipeActions() {
-        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
-        ) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int pos = viewHolder.getAdapterPosition();
-                Article article = filteredArticleList.get(pos);
-                if (direction == ItemTouchHelper.RIGHT) {
-                    article.setRead(true);
-                    Toast.makeText(MainActivity.this,
-                            R.string.toast_marked_read,
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    articleList.remove(article);
-                    Toast.makeText(MainActivity.this,
-                            R.string.toast_deleted,
-                            Toast.LENGTH_SHORT).show();
-                }
-                applyFilter();
-                articleAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildDraw(@NonNull Canvas c,
-                                    @NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.ViewHolder viewHolder,
-                                    float dX, float dY,
-                                    int actionState, boolean isCurrentlyActive) {
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                // set icon size
-                float ICON_SIZE = 48 * getResources().getDisplayMetrics().density;
-
-                View itemView = viewHolder.itemView;
-                Drawable icon;
-                int backgroundColor;
-                float iconMargin = (itemView.getHeight() - ICON_SIZE) / 2f;
-                float iconTop = itemView.getTop() + iconMargin;
-                float iconBottom = iconTop + ICON_SIZE;
-
-                if (dX > 0) {
-                    icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_eye);
-                    backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_read_background);
-                    float iconLeft = itemView.getLeft() + iconMargin;
-                    float iconRight = iconLeft + ICON_SIZE;
-                    c.drawRect(itemView.getLeft(), itemView.getTop(),
-                            itemView.getLeft() + dX, itemView.getBottom(),
-                            new Paint() {{ setColor(backgroundColor); }});
-                    icon.setBounds((int)iconLeft, (int)iconTop,
-                            (int)iconRight, (int)iconBottom);
-                    icon.draw(c);
-                } else if (dX < 0) {
-                    icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_delete);
-                    backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_delete_background);
-                    float iconRight = itemView.getRight() - iconMargin;
-                    float iconLeft = iconRight - ICON_SIZE;
-                    c.drawRect(itemView.getRight() + dX, itemView.getTop(),
-                            itemView.getRight(), itemView.getBottom(),
-                            new Paint() {{ setColor(backgroundColor); }});
-                    icon.setBounds((int)iconLeft, (int)iconTop,
-                            (int)iconRight, (int)iconBottom);
-                    icon.draw(c);
-                }
-            }
-        };
-        new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerViewArticles);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        applyFilter();
     }
 
     @Override
     public void onUrlEntered(String url) {
-        fetchArticle(url);
-    }
-
-    private void fetchArticle(String url) {
         new Thread(() -> {
             try {
                 Article article = new ArticleRepository().fetchArticle(url);
                 article.setRead(false);
-                runOnUiThread(() -> addArticleToList(article));
+                article.setUserId(currentUid);
+                String key = articlesRef.push().getKey();
+                if (key != null) {
+                    article.setId(key);
+                    articlesRef.child(key).setValue(article);
+                }
+                // Listener will pick up new data; no need to manually reload
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(
@@ -267,22 +178,89 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
-    private void addArticleToList(Article article) {
-        articleList.add(0, article);
-        applyFilter();
-        recyclerViewArticles.scrollToPosition(0);
+    private void handleNavigationItem(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.nav_logout) {
+            SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear();
+            editor.apply();
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, R.string.toast_coming_soon, Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void loadData() {
-        applyFilter();
+    private void setupTabLayout() {
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_all));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_unread));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_read));
+        tabLayout.selectTab(tabLayout.getTabAt(FILTER_UNREAD));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(TabLayout.Tab tab) { currentFilter = tab.getPosition(); applyFilter(); }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    private void setupSwipeActions() {
+        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) { return false; }
+            @Override public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int pos = viewHolder.getAdapterPosition();
+                Article article = filteredArticleList.get(pos);
+                if (direction == ItemTouchHelper.RIGHT) {
+                    article.setRead(true);
+                    Toast.makeText(MainActivity.this, R.string.toast_marked_read, Toast.LENGTH_SHORT).show();
+                } else {
+                    articlesRef.child(article.getId()).removeValue();
+                    Toast.makeText(MainActivity.this, R.string.toast_deleted, Toast.LENGTH_SHORT).show();
+                }
+                applyFilter();
+                articleAdapter.notifyDataSetChanged();
+            }
+            @Override public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                float ICON_SIZE = 48 * getResources().getDisplayMetrics().density;
+                View itemView = viewHolder.itemView;
+                Drawable icon;
+                int backgroundColor;
+                float iconMargin = (itemView.getHeight() - ICON_SIZE) / 2f;
+                float iconTop = itemView.getTop() + iconMargin;
+                float iconBottom = iconTop + ICON_SIZE;
+                if (dX > 0) {
+                    icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_eye);
+                    backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_read_background);
+                    c.drawRect(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + dX, itemView.getBottom(), new Paint() {{ setColor(backgroundColor); }});
+                    float iconLeft = itemView.getLeft() + iconMargin;
+                    float iconRight = iconLeft + ICON_SIZE;
+                    icon.setBounds((int)iconLeft, (int)iconTop, (int)iconRight, (int)iconBottom);
+                    icon.draw(c);
+                } else if (dX < 0) {
+                    icon = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_delete);
+                    backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.swipe_delete_background);
+                    c.drawRect(itemView.getRight() + dX, itemView.getTop(), itemView.getRight(), itemView.getBottom(), new Paint() {{ setColor(backgroundColor); }});
+                    float iconRight = itemView.getRight() - iconMargin;
+                    float iconLeft = iconRight - ICON_SIZE;
+                    icon.setBounds((int)iconLeft, (int)iconTop, (int)iconRight, (int)iconBottom);
+                    icon.draw(c);
+                }
+            }
+        };
+        new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerViewArticles);
     }
 
     private void applyFilter() {
         filteredArticleList.clear();
         for (Article a : articleList) {
-            if (currentFilter == FILTER_ALL
-                    || (currentFilter == FILTER_UNREAD && !a.isRead())
-                    || (currentFilter == FILTER_READ && a.isRead())) {
+            if (currentFilter == FILTER_ALL || (currentFilter == FILTER_UNREAD && !a.isRead()) || (currentFilter == FILTER_READ && a.isRead())) {
                 filteredArticleList.add(a);
             }
         }
