@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, R.string.toast_enter_email_password, Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show();
             } else {
                 loginUser(email, password);
             }
@@ -58,16 +58,28 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        Toast.makeText(LoginActivity.this, "R.string.toast_login_success" + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Giriş başarılı: " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
                         // Ana ekrana geç
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish(); // Geri tuşuyla login'e dönülmesin
                     } else {
-                        Toast.makeText(LoginActivity.this, R.string.toast_coming_soon + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, "Giriş başarısız: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }
-}
 
+    // Uygulama başlatıldığında kullanıcı giriş yapmışsa, doğrudan MainActivity'ye yönlendir.
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Kullanıcı zaten giriş yapmış, MainActivity'ye yönlendir.
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+}

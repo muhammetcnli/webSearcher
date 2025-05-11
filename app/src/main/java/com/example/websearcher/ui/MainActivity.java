@@ -33,7 +33,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -67,6 +66,15 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.Theme_WebSearcher);
         setContentView(R.layout.activity_main);
 
+        // Check if the user is already logged in
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // If the user is not logged in, redirect to LoginActivity
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // Proceed with regular MainActivity setup
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -130,6 +138,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 applyFilter();
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(MainActivity.this, "Veri alınırken hata: " + error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -185,6 +194,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_logout) {
+            FirebaseAuth.getInstance().signOut(); // Sign out user
             SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();

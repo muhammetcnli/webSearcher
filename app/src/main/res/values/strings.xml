@@ -23,6 +23,8 @@
     <string name="placeholder_reading_time">5 min</string>
     <string name="placeholder_title">This long article title can span multiple lines</string>
 
+    <string name="toast_article_saved">Makale başarıyla kaydedildi!</string>
+
     <!-- Diğer string kaynakları -->
     <string name="filter_all">All</string>
     <string name="filter_unread">Unread</string>
