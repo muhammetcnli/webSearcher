@@ -13,6 +13,11 @@ import androidx.annotation.Nullable;
 import com.example.websearcher.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+// AddLinkBottomSheetFragment, kullanıcıdan URL girmesini sağlayan bir alt sayfa (bottom sheet) içerir
+// Kullanıcı URL'yi girdikten sonra, URL'yi dinleyici aracılığıyla dışarıya iletir
+// URL girişinin tamamlanmasının ardından fragment kapatılır
+// editTextUrl, URL'yi almak için kullanılır ve "Done" tuşuna basıldığında işlemi gerçekleştirir
+
 public class AddLinkBottomSheetFragment extends BottomSheetDialogFragment {
 
     private OnUrlEnteredListener urlEnteredListener;

@@ -54,6 +54,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Kullanıcının e-posta ve şifre ile giriş yapmasını sağlar
+// E-posta formatını kontrol eder, geçerli değilse uyarı gösterir
+// Giriş başarılı ise kullanıcıyı ana ekrana yönlendirir, başarısız olursa hata mesajı gösterir
     private void loginUser(String email, String password) {
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {

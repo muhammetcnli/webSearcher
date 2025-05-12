@@ -15,6 +15,12 @@ import com.example.websearcher.model.Article;
 
 import java.util.List;
 
+// ArticleAdapter, makale verilerini RecyclerView içinde listelemek için kullanılır
+// Adapter, her bir makale için başlık, okuma süresi, resim ve okundu/okunmadı durumuna göre tik işareti ekler
+// Glide kütüphanesi ile makale resimleri yüklenir (placeholder ve error resimleri de dahil)
+// "tick" simgesi, makalenin okunduğunda görünür olur
+// Kullanıcı bir makaleye tıkladığında, onArticleClickListener ile makale bilgisi dışarıya iletilir
+
 public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHolder> {
 
     private final List<Article> articles;

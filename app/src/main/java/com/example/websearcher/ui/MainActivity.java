@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     private String currentUid;
     private ValueEventListener articlesListener;
 
+    // Activity başlatıldığında tema ayarlanır, kullanıcı giriş yapmamışsa login ekranına yönlendirilir
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity
         loadArticles();
         setupListeners();
     }
-
+// Kullanıcının seçtiği tema (dark/light) ve dil ayarlarını uygular
     private void applyUserPreferences() {
         SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
 
@@ -118,6 +119,7 @@ public class MainActivity extends AppCompatActivity
         getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
+    // Toolbar, Navigation Drawer, RecyclerView ve FAB gibi ana UI bileşenlerini kurar
     private void setupUI() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -153,6 +155,8 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+// Kullanıcı verilerini Firebase'den alarak, Navigation Drawer başlık kısmında görüntüler
+// Eğer kullanıcı bilgisi mevcutsa, ad, soyad ve e-posta bilgilerini yükler
     private void loadUserData() {
         // Get header view from navigation view
         View headerView = navigationView.getHeaderView(0);
@@ -190,6 +194,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // RecyclerView'i başlatır, makale listesini filtreler ve tıklama olaylarını işler
+// Herhangi bir makale tıklandığında, URL'ye yönlendirir ve makaleyi "okundu" olarak işaretler
     private void setupRecyclerView() {
         articleList = new ArrayList<>();
         filteredArticleList = new ArrayList<>();
@@ -211,6 +217,9 @@ public class MainActivity extends AppCompatActivity
         setupSwipeActions();
     }
 
+    // Makaleleri Firebase veritabanından yükler ve listeyi günceller
+// Veritabanı değişikliklerini dinler, veriler geldiğinde listeyi temizler ve yeni verilerle doldurur
+// Hata durumunda bir Toast mesajı gösterir
     private void loadArticles() {
         articlesListener = new ValueEventListener() {
             @Override
@@ -233,11 +242,15 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
+    // Kullanıcının ID'sine göre makale verilerini Firebase veritabanından dinlemeye başlar
+// articlesRef üzerinde dinleyici ekler ve "userId" alanına göre filtreleme yaparak ilgili verileri alır
     private void setupListeners() {
         articlesRef.orderByChild("userId").equalTo(currentUid)
                 .addValueEventListener(articlesListener);
     }
 
+    // Aktivite yok edilmeden önce, Firebase veritabanı dinleyicisini kaldırır
+// articlesListener ile daha önce eklenen dinleyiciyi siler, böylece gereksiz veri dinlemesi önlenir
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -246,6 +259,14 @@ public class MainActivity extends AppCompatActivity
                     .removeEventListener(articlesListener);
         }
     }
+
+    // URL girildiğinde çağrılır, yeni bir article (makale) verisi alır ve Firebase'e ekler
+// Yeni bir iş parçacığı başlatır, böylece ana UI iş parçacığını engellemez
+
+// URL'yi kullanarak ArticleRepository üzerinden makale verisi alınır
+// Makale okunmamış olarak işaretlenir, ve kullanıcının ID'si eklenir
+// Firebase'deki articlesRef altına yeni bir makale eklenir, key ile eşleşir
+// Eğer hata oluşursa, hata mesajı bir Toast ile kullanıcıya gösterilir
 
     @Override
     public void onUrlEntered(String url) {
@@ -270,6 +291,11 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
+    // Navigasyon menüsündeki item'lere tıklandığında işlemleri yönetir
+// "Logout" seçeneğinde kullanıcı çıkışı yapılır ve giriş ekranına yönlendirilir
+// "Theme" seçeneğinde tema değiştirilir
+// "Language" seçeneğinde dil değiştirilir
+// Diğer seçenekler için "Coming Soon" mesajı gösterilir
     private void handleNavigationItem(@NonNull MenuItem item) {
         int id = item.getItemId();
 
@@ -292,6 +318,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Kullanıcının tema tercihini değiştirir
+// Eğer karanlık mod aktifse, açık moda geçer ve tercihi kaydeder
+// Eğer açık mod aktifse, karanlık moda geçer ve tercihi kaydeder
+// Aktiviteyi yeniden başlatarak tema değişikliğini uygular
     private void toggleTheme() {
         SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean("dark_mode", false);
@@ -307,6 +337,9 @@ public class MainActivity extends AppCompatActivity
         recreate(); // Restart activity
     }
 
+    // Kullanıcının dil tercihini değiştirir
+// Eğer mevcut dil İngilizce ise Türkçeye, Türkçe ise İngilizceye geçer ve tercihi kaydeder
+// Yeni dili uygulamak için sistemin locale ayarlarını günceller ve aktiviteyi yeniden başlatır
     private void toggleLanguage() {
         SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String currentLang = prefs.getString("app_lang", "en");
@@ -324,6 +357,9 @@ public class MainActivity extends AppCompatActivity
         recreate(); // Restart activity
     }
 
+    // TabLayout'e filtre seçeneklerini ekler (Tüm, Okunmamış, Okunmuş)
+// Başlangıçta Okunmamış (FILTER_UNREAD) sekmesini seçer
+// Tab seçildiğinde mevcut filtreyi günceller ve filtre uygulama fonksiyonunu tetikler
     private void setupTabLayout() {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_all));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.filter_unread));
@@ -336,6 +372,8 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    // Swipe (kaydırma) hareketlerini ayarlar: sağa kaydırma ile makale okundu olarak işaretlenir, sola kaydırma ile makale silinir
+// Kaydırma işlemi sonrası ilgili makale veritabanında güncellenir ve filtre uygulanır
     private void setupSwipeActions() {
         ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) { return false; }
@@ -352,6 +390,9 @@ public class MainActivity extends AppCompatActivity
                 }
                 applyFilter();
             }
+
+            // RecyclerView öğelerinin sağa veya sola kaydırıldığında, ilgili işlemi görsel olarak kullanıcıya gösterir
+// Sağ kaydırmada okundu olarak işaretleme ikonu ve arka planı, sol kaydırmada silme ikonu ve arka planı çizilir
             @Override public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                 float ICON_SIZE = 48 * getResources().getDisplayMetrics().density;
@@ -383,6 +424,7 @@ public class MainActivity extends AppCompatActivity
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerViewArticles);
     }
 
+// Filtreleme işlemi uygulanır ve belirli koşullara göre makaleler gösterilir
     private void applyFilter() {
         filteredArticleList.clear();
         for (Article a : articleList) {
@@ -396,6 +438,7 @@ public class MainActivity extends AppCompatActivity
         updateEmptyViewVisibility();
     }
 
+    // Boş liste durumunda uygun mesaj görünür, aksi takdirde makale listesi gösterilir
     private void updateEmptyViewVisibility() {
         if (filteredArticleList.isEmpty()) {
             recyclerViewArticles.setVisibility(View.GONE);
