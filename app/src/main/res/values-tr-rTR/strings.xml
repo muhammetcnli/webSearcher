@@ -36,7 +36,7 @@
     <string name="toast_marked_read">Okundu</string>
     <string name="toast_deleted">Silindi</string>
     <string name="toast_enter_email_password">Lütfen tüm alanları doldurun</string>
-    <string name="toast_login_success">Giriş Başarılı: </string>
+    <string name="toast_login_success">Giriş Başarılı!</string>
 
     <string name="toast_coming_soon">Yakında</string>
 
@@ -68,7 +68,8 @@
     <string name="error_user_data">"Kullanıcı bilgisi alınamadı: "</string>
     <string name="error_article_data">"Site bilgisi alınamadı: "</string>
     <string name="error_passwords_not_match">Şifreler uyuşmuyor</string>
-    <string name="toast_register_success">"Kayıt başarılı: "</string>
+    <string name="toast_register_success">Kayıt başarılı!</string>
     <string name="database_error">Kullanıcı veritabanına eklenemedi</string>
     <string name="error_email_not_found">Hata: Email bulunamadı</string>
+    <string name="invalid_email_format">Email formatı hatalı</string>
 </resources>

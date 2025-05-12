@@ -2,6 +2,7 @@ package com.example.websearcher.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -54,13 +55,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser(String email, String password) {
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(LoginActivity.this, R.string.invalid_email_format, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null && user.getEmail() != null) {
-                            String userEmail = user.getEmail();
-                            Toast.makeText(LoginActivity.this, getString(R.string.toast_login_success) + userEmail, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, getString(R.string.toast_login_success), Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(LoginActivity.this, R.string.error_email_not_found, Toast.LENGTH_SHORT).show();
                         }

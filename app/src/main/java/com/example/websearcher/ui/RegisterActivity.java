@@ -1,6 +1,7 @@
 package com.example.websearcher.ui;
 
 import android.os.Bundle;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -51,6 +52,8 @@ public class RegisterActivity extends AppCompatActivity {
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()
                     || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, R.string.toast_enter_email_password, Toast.LENGTH_SHORT).show();
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, R.string.invalid_email_format, Toast.LENGTH_SHORT).show();
             } else if (!password.equals(confirmPassword)) {
                 Toast.makeText(this, R.string.error_passwords_not_match, Toast.LENGTH_SHORT).show();
             } else {
