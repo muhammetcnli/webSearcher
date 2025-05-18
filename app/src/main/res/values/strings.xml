@@ -1,6 +1,6 @@
 <resources>
     <!-- General Application Information -->
-    <string name="app_name">webSearcher</string>
+    <string name="app_name">ReadList</string>
 
     <!-- URL Related Messages -->
     <string name="hint_enter_url">Enter URL</string>

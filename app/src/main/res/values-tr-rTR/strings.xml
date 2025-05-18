@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Genel Uygulama Bilgisi -->
-    <string name="app_name">webSearcher</string>
+    <string name="app_name">ReadList</string>
 
     <!-- URL İlgili Mesajlar -->
     <string name="hint_enter_url">URL girin</string>
